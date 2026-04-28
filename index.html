@@ -1,282 +1,817 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Neural Logic | Systems Terminal</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=JetBrains+Mono:wght@400;700&display=swap');
-        
-        :root {
-            --primary: #6366f1;
-            --bg: #050507;
-            --card: #0d0d12;
-            --border: rgba(255, 255, 255, 0.08);
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IS Licensing Core</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#030308;--s1:#07070f;--s2:#0b0b17;--s3:#0f0f1f;
+  --indigo:#5b5bd6;--indigo-hi:#7b7be6;--indigo-dim:rgba(91,91,214,0.1);
+  --green:#10b981;--border:rgba(255,255,255,0.055);--border2:rgba(255,255,255,0.1);
+  --text:#ddddf0;--text2:#9898b8;--text3:#55556a;
+  --mono:'Space Mono',monospace;--sans:'DM Sans',sans-serif;--disp:'Syne',sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);overflow-x:hidden;-webkit-font-smoothing:antialiased}
+body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,0.022) 3px,rgba(0,0,0,0.022) 4px);pointer-events:none;z-index:1000}
 
-        body { 
-            font-family: 'Inter', sans-serif; 
-            background-color: var(--bg); 
-            color: #f4f4f5;
-            scroll-behavior: smooth;
-        }
+/* NAV */
+nav{position:fixed;top:0;width:100%;z-index:500;background:rgba(3,3,8,0.92);backdrop-filter:blur(24px);border-bottom:1px solid var(--border)}
+.nav-wrap{max-width:1200px;margin:0 auto;padding:0 28px;height:58px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.logo{display:flex;align-items:center;gap:10px;text-decoration:none;flex-shrink:0;cursor:pointer}
+.logo-icon{width:26px;height:26px;border:1.5px solid var(--indigo);position:relative;display:grid;place-items:center}
+.logo-icon::after{content:'';position:absolute;width:9px;height:9px;background:var(--indigo)}
+.logo-name{font-family:var(--disp);font-size:10.5px;font-weight:800;letter-spacing:0.2em;text-transform:uppercase;color:var(--text)}
+.logo-name em{color:var(--indigo);font-style:normal}
+.nav-links{display:flex;align-items:center;gap:2px}
+.nav-link{font-family:var(--mono);font-size:8px;letter-spacing:0.1em;text-transform:uppercase;color:var(--text3);padding:7px 11px;border:1px solid transparent;transition:all 0.2s;cursor:pointer;background:none;border-radius:0}
+.nav-link:hover,.nav-link.active{color:var(--text);border-color:var(--border2)}
+.nav-link.active{color:var(--indigo)}
+.nav-r{display:flex;align-items:center;gap:14px}
+.nav-status{display:flex;align-items:center;gap:5px;font-family:var(--mono);font-size:7.5px;color:var(--text3)}
+.sdot{width:5px;height:5px;border-radius:50%;background:var(--green);animation:blink 2s ease-in-out infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
+.nav-cta{font-family:var(--mono);font-size:8px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;background:var(--indigo);color:#fff;border:none;padding:9px 18px;cursor:pointer;transition:opacity 0.2s}
+.nav-cta:hover{opacity:0.85}
 
-        .mono { font-family: 'JetBrains Mono', monospace; }
+/* TICKER */
+.ticker{background:var(--indigo);overflow:hidden;padding:6px 0;margin-top:58px}
+.ticker-inner{display:flex;width:max-content;animation:scrollx 30s linear infinite}
+.tick{font-family:var(--mono);font-size:7.5px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:rgba(255,255,255,0.6);white-space:nowrap;padding:0 30px;border-right:1px solid rgba(255,255,255,0.18)}
+@keyframes scrollx{from{transform:translateX(0)}to{transform:translateX(-50%)}}
 
-        .premium-card {
-            background: var(--card);
-            border: 1px solid var(--border);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
+/* PAGE SYSTEM */
+.page{display:none;animation:pagein 0.3s ease}
+.page.active{display:block}
+@keyframes pagein{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 
-        .product-card:hover {
-            border-color: var(--primary);
-            box-shadow: 0 0 30px rgba(99, 102, 241, 0.15);
-            transform: translateY(-4px);
-        }
+/* SHARED */
+.sw{max-width:1200px;margin:0 auto;padding:0 28px}
+.slr{display:flex;align-items:center;gap:16px;margin-bottom:48px}
+.sl{font-family:var(--mono);font-size:8px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:var(--indigo)}
+.sline{flex:1;height:1px;background:var(--border)}
+.sn{font-family:var(--mono);font-size:8px;color:var(--text3)}
+.btn{font-family:var(--mono);font-size:9px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;padding:13px 24px;cursor:pointer;border:none;transition:all 0.2s;text-decoration:none;display:inline-block}
+.btn-fill{background:var(--indigo);color:#fff}.btn-fill:hover{background:var(--indigo-hi)}
+.btn-outline{background:transparent;color:var(--text2);border:1px solid var(--border2)}.btn-outline:hover{border-color:var(--indigo);color:var(--text)}
+.ph{padding:90px 0}
+.ph2{padding:90px 0;background:var(--s1);border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
 
-        .btn-primary {
-            background-color: var(--primary);
-            color: white;
-            transition: all 0.2s ease;
-        }
-        
-        .btn-primary:hover {
-            background-color: #4f46e5;
-            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
-        }
+/* HERO */
+.hero-grid{display:grid;grid-template-columns:1fr 500px;gap:48px;max-width:1200px;margin:0 auto;padding:80px 28px 60px;align-items:center;min-height:91vh}
+@media(max-width:960px){.hero-grid{grid-template-columns:1fr;padding-top:50px}}
+.hero-badge{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--border2);padding:5px 11px;margin-bottom:28px}
+.hero-badge-t{font-family:var(--mono);font-size:7.5px;color:var(--text3);letter-spacing:0.12em;text-transform:uppercase}
 
-        #chat-window {
-            height: 380px;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            overflow-y: auto;
-            padding: 20px;
-        }
+/* HERO TITLE — THIN */
+.hero-h1{font-family:var(--disp);font-size:clamp(36px,5vw,62px);font-weight:500;line-height:0.97;letter-spacing:-0.02em;margin-bottom:22px}
+.hero-h1 .hl-a{display:block}
+.hero-h1 .hl-b{display:block;padding-left:44px;color:var(--indigo);font-style:italic;font-weight:400}
+.hero-h1 .hl-c{display:block;padding-left:22px;font-weight:500}
 
-        .msg {
-            max-width: 85%;
-            padding: 12px 16px;
-            border-radius: 16px;
-            font-size: 13px;
-            line-height: 1.5;
-        }
+.hero-sub{font-size:12.5px;font-weight:300;line-height:1.82;color:var(--text2);max-width:340px;margin-bottom:32px}
+.hero-acts{display:flex;gap:10px;margin-bottom:52px;flex-wrap:wrap}
+.hero-metrics{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid var(--border);overflow:hidden}
+.hm{padding:16px 14px;border-right:1px solid var(--border);background:var(--s1)}.hm:last-child{border-right:none}
+.hm-val{font-family:var(--disp);font-size:19px;font-weight:700;letter-spacing:-0.02em;margin-bottom:2px}
+.hm-k{font-family:var(--mono);font-size:7px;color:var(--text3);letter-spacing:0.1em;text-transform:uppercase}
 
-        .bot-msg {
-            background: rgba(99, 102, 241, 0.1);
-            color: #a5b4fc;
-            align-self: flex-start;
-            border-bottom-left-radius: 2px;
-        }
+/* TERMINAL */
+.terminal{background:var(--s1);border:1px solid var(--border);display:flex;flex-direction:column;min-height:480px}
+.tbar{padding:9px 13px;background:var(--s2);border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.tdots{display:flex;gap:5px}
+.td{width:8px;height:8px;border-radius:50%}
+.td1{background:#ff5f56}.td2{background:#ffbd2e}.td3{background:#27c93f}
+.ttitle{font-family:var(--mono);font-size:7.5px;color:var(--text3);letter-spacing:0.1em;text-transform:uppercase}
+.tver{font-family:var(--mono);font-size:7px;background:rgba(16,185,129,0.1);color:var(--green);padding:2px 7px}
+.chat-body{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:8px;scrollbar-width:thin;scrollbar-color:var(--border) transparent;max-height:380px}
+.msg{font-family:var(--mono);font-size:10px;line-height:1.65;max-width:92%;padding:9px 12px}
+.bot{background:var(--indigo-dim);color:#a8a8f8;align-self:flex-start;border-left:2px solid var(--indigo)}
+.usr{background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.6);align-self:flex-end;border-right:2px solid var(--text3)}
+.cfoot{padding:9px;background:var(--s2);border-top:1px solid var(--border);display:flex;gap:7px}
+.cinp{flex:1;background:rgba(255,255,255,0.03);border:1px solid var(--border);color:var(--text);font-family:var(--mono);font-size:9.5px;padding:8px 11px;outline:none;transition:border-color 0.2s}
+.cinp:focus{border-color:var(--indigo)}
+.cinp::placeholder{color:var(--text3)}
+.csend{background:var(--indigo);border:none;padding:0 12px;cursor:pointer;color:#fff;display:grid;place-items:center;transition:opacity 0.2s}
+.csend:hover{opacity:0.8}
 
-        .user-msg {
-            background: #27272a;
-            color: white;
-            align-self: flex-end;
-            border-bottom-right-radius: 2px;
-        }
+/* STD BAR */
+.std-bar{background:var(--s1);border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:0 28px}
+.std-inner{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr)}
+@media(max-width:760px){.std-inner{grid-template-columns:1fr 1fr}}
+.std{padding:28px 18px;border-right:1px solid var(--border)}.std:last-child{border-right:none}
+.std-icon{width:30px;height:30px;border:1px solid var(--border2);display:grid;place-items:center;margin-bottom:12px}
+.std-icon svg{width:13px;height:13px;stroke:var(--indigo);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.std-t{font-family:var(--disp);font-size:12px;font-weight:700;margin-bottom:4px}
+.std-d{font-size:11px;font-weight:300;line-height:1.6;color:var(--text2)}
 
-        .license-badge {
-            background: rgba(16, 185, 129, 0.1);
-            color: #10b981;
-            padding: 2px 8px;
-            border-radius: 4px;
-            font-size: 9px;
-            font-weight: 800;
-            letter-spacing: 0.05em;
-        }
-    </style>
+/* FEAT GRID */
+.feat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);border:1px solid var(--border)}
+@media(max-width:760px){.feat-grid{grid-template-columns:1fr}}
+.feat{background:var(--s1);padding:34px 28px;transition:background 0.3s}.feat:hover{background:var(--s2)}
+.feat-n{font-family:var(--mono);font-size:8.5px;color:var(--indigo);letter-spacing:0.1em;margin-bottom:18px}
+.feat-icon{width:36px;height:36px;border:1px solid var(--border2);display:grid;place-items:center;margin-bottom:16px}
+.feat-icon svg{width:16px;height:16px;stroke:var(--indigo);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.feat-t{font-family:var(--disp);font-size:15px;font-weight:700;letter-spacing:-0.01em;margin-bottom:9px}
+.feat-d{font-size:11.5px;font-weight:300;line-height:1.75;color:var(--text2)}
+
+/* HOW IT WORKS */
+.hiw-layout{display:grid;grid-template-columns:340px 1fr;gap:72px;align-items:start}
+@media(max-width:900px){.hiw-layout{grid-template-columns:1fr;gap:40px}}
+.step{display:flex;gap:18px;padding:22px 0;border-bottom:1px solid var(--border)}.step:last-child{border-bottom:none}
+.step-n{font-family:var(--mono);font-size:8.5px;font-weight:700;color:var(--indigo);width:26px;flex-shrink:0;padding-top:2px}
+.step-t{font-family:var(--disp);font-size:13.5px;font-weight:700;margin-bottom:5px;letter-spacing:-0.01em}
+.step-d{font-size:11.5px;font-weight:300;line-height:1.7;color:var(--text2)}
+.hiw-cards{display:flex;flex-direction:column;gap:16px}
+.hiw-card{background:var(--s1);border:1px solid var(--border);padding:24px;transition:border-color 0.3s}.hiw-card:hover{border-color:var(--indigo-hi)}
+.hiw-ct{font-family:var(--mono);font-size:7px;letter-spacing:0.15em;text-transform:uppercase;color:var(--indigo);margin-bottom:10px}
+.hiw-ch{font-family:var(--disp);font-size:14px;font-weight:700;margin-bottom:7px;letter-spacing:-0.01em}
+.hiw-cd{font-size:11.5px;font-weight:300;line-height:1.7;color:var(--text2)}
+.hiw-meta{display:flex;gap:14px;margin-top:13px;padding-top:13px;border-top:1px solid var(--border)}
+.hm-item{font-family:var(--mono);font-size:7.5px;color:var(--text3);letter-spacing:0.08em;text-transform:uppercase}
+.hm-item strong{color:var(--green);font-weight:700}
+
+/* CATALOG */
+.cat-intro{display:grid;grid-template-columns:1fr 1fr;gap:72px;margin-bottom:56px;align-items:end}
+@media(max-width:760px){.cat-intro{grid-template-columns:1fr;gap:20px}}
+.cat-h2{font-family:var(--disp);font-size:clamp(24px,3.5vw,42px);font-weight:700;letter-spacing:-0.025em;line-height:1.05}
+.cat-sub{font-size:12.5px;font-weight:300;line-height:1.82;color:var(--text2)}
+.cat-sub p+p{margin-top:11px}
+.pgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);border:1px solid var(--border)}
+@media(max-width:900px){.pgrid{grid-template-columns:1fr}}
+.pc{background:var(--s1);padding:32px 28px;display:flex;flex-direction:column;position:relative;transition:background 0.3s}.pc:hover{background:var(--s2)}
+.pc.hot{background:var(--indigo-dim)}.pc.hot:hover{background:rgba(91,91,214,0.14)}
+.pc-corner{position:absolute;top:0;right:0;width:0;height:0;border-style:solid;border-width:0 20px 20px 0;border-color:transparent var(--bg) transparent transparent}
+.pc-type{font-family:var(--mono);font-size:7.5px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:var(--indigo);margin-bottom:18px;display:flex;align-items:center;justify-content:space-between}
+.pc-badge{font-family:var(--mono);font-size:7px;letter-spacing:0.1em;text-transform:uppercase;background:rgba(16,185,129,0.1);color:var(--green);padding:3px 7px}
+.pc-h{font-family:var(--disp);font-size:19px;font-weight:700;letter-spacing:-0.02em;line-height:1.15;margin-bottom:12px}
+.pc-d{font-size:11.5px;font-weight:300;line-height:1.75;color:var(--text2);margin-bottom:20px;flex:1}
+.pc-feats{list-style:none;margin-bottom:20px}
+.pc-feats li{font-family:var(--mono);font-size:8px;color:var(--text2);padding:6px 0;border-bottom:1px solid var(--border);display:flex;gap:7px;align-items:flex-start}
+.pc-feats li::before{content:'';width:3px;height:3px;background:var(--indigo);flex-shrink:0;margin-top:5px}
+.pc-feats li:last-child{border-bottom:none}
+.pc-period{font-family:var(--mono);font-size:7.5px;color:var(--text3);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:3px}
+.pc-price{font-family:var(--disp);font-size:32px;font-weight:700;letter-spacing:-0.02em;line-height:1;margin-bottom:18px}
+.btn-card{width:100%;font-family:var(--mono);font-size:8px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;padding:12px;cursor:pointer;transition:all 0.2s;background:transparent;color:var(--indigo);border:1px solid var(--indigo)}
+.btn-card:hover{background:var(--indigo);color:#fff}
+.hot .btn-card{background:var(--indigo);color:#fff}.hot .btn-card:hover{background:var(--indigo-hi)}
+
+/* COMPARE TABLE */
+.ctable-wrap{margin-top:36px;border:1px solid var(--border);overflow:hidden}
+.ctable-head{background:var(--s2);padding:13px 22px;border-bottom:1px solid var(--border)}
+.ctable-tag{font-family:var(--mono);font-size:7.5px;letter-spacing:0.16em;text-transform:uppercase;color:var(--indigo)}
+table{width:100%;border-collapse:collapse}
+th{font-family:var(--mono);font-size:7.5px;letter-spacing:0.1em;text-transform:uppercase;padding:11px 18px;text-align:center;border-bottom:1px solid var(--border);color:var(--text3);background:var(--s2)}
+th:first-child{text-align:left;color:var(--text3)}
+th.col-hot{color:var(--indigo)}
+td{font-size:11px;color:var(--text2);padding:10px 18px;border-bottom:1px solid var(--border);text-align:center}
+td:first-child{text-align:left;color:var(--text2)}
+tr:last-child td{border-bottom:none}
+tr:nth-child(odd){background:var(--s1)}
+tr:nth-child(even){background:var(--bg)}
+.c-yes{color:var(--green);font-family:var(--mono);font-size:11px}
+.c-no{color:var(--text3);font-family:var(--mono);font-size:11px}
+
+/* USE CASES */
+.uc-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border);border:1px solid var(--border)}
+@media(max-width:760px){.uc-grid{grid-template-columns:1fr}}
+.uc{background:var(--s1);padding:32px 28px;transition:background 0.3s}.uc:hover{background:var(--s2)}
+.uc-tag{font-family:var(--mono);font-size:7px;letter-spacing:0.16em;text-transform:uppercase;color:var(--indigo);margin-bottom:13px}
+.uc-t{font-family:var(--disp);font-size:16px;font-weight:700;letter-spacing:-0.01em;margin-bottom:9px}
+.uc-d{font-size:11.5px;font-weight:300;line-height:1.75;color:var(--text2);margin-bottom:17px}
+.uc-pills{display:flex;flex-wrap:wrap;gap:5px}
+.uc-pill{font-family:var(--mono);font-size:7px;letter-spacing:0.1em;text-transform:uppercase;border:1px solid var(--border2);color:var(--text3);padding:3px 8px}
+
+/* ABOUT */
+.about-layout{display:grid;grid-template-columns:1fr 1fr;gap:72px;align-items:center}
+@media(max-width:900px){.about-layout{grid-template-columns:1fr;gap:40px}}
+.about-h2{font-family:var(--disp);font-size:clamp(24px,3.5vw,42px);font-weight:700;letter-spacing:-0.025em;line-height:1.05;margin-bottom:18px}
+.about-txt{font-size:12px;font-weight:300;line-height:1.85;color:var(--text2)}
+.about-txt p+p{margin-top:13px}
+.cred-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border);border:1px solid var(--border)}
+.cred{background:var(--s1);padding:20px 18px;transition:background 0.2s}.cred:hover{background:var(--s2)}
+.cred-k{font-family:var(--mono);font-size:7.5px;color:var(--text3);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:5px}
+.cred-v{font-family:var(--disp);font-size:13px;font-weight:700;letter-spacing:-0.01em}
+
+/* FAQ */
+.faq-layout{display:grid;grid-template-columns:300px 1fr;gap:72px;align-items:start}
+@media(max-width:900px){.faq-layout{grid-template-columns:1fr;gap:36px}}
+.faq-intro h2{font-family:var(--disp);font-size:clamp(20px,3vw,34px);font-weight:700;letter-spacing:-0.02em;line-height:1.1;margin-bottom:14px}
+.faq-intro p{font-size:12px;font-weight:300;line-height:1.8;color:var(--text2)}
+.faq-item{border-bottom:1px solid var(--border)}
+.faq-q{font-family:var(--disp);font-size:13px;font-weight:700;letter-spacing:-0.01em;padding:18px 0;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:14px;user-select:none;transition:color 0.2s}
+.faq-q:hover{color:var(--indigo)}
+.faq-arr{font-family:var(--mono);font-size:11px;color:var(--text3);flex-shrink:0;transition:transform 0.25s}
+.faq-item.open .faq-arr{transform:rotate(45deg);color:var(--indigo)}
+.faq-a{font-size:12px;font-weight:300;line-height:1.8;color:var(--text2);max-height:0;overflow:hidden;transition:max-height 0.35s ease,padding 0.25s}
+.faq-item.open .faq-a{max-height:260px;padding-bottom:18px}
+
+/* CTA BAND */
+.cta-band{padding:88px 0;background:var(--indigo-dim);border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+.cta-inner{max-width:640px;margin:0 auto;text-align:center;padding:0 28px}
+.cta-tag{font-family:var(--mono);font-size:7.5px;letter-spacing:0.2em;text-transform:uppercase;color:var(--indigo);margin-bottom:18px}
+.cta-h2{font-family:var(--disp);font-size:clamp(26px,4vw,48px);font-weight:600;letter-spacing:-0.025em;line-height:1.0;margin-bottom:18px}
+.cta-sub{font-size:12.5px;font-weight:300;line-height:1.82;color:var(--text2);margin-bottom:32px}
+.cta-acts{display:flex;justify-content:center;gap:10px;flex-wrap:wrap}
+
+/* CONTACT */
+.contact-layout{display:grid;grid-template-columns:1fr 1fr;gap:72px;align-items:start}
+@media(max-width:900px){.contact-layout{grid-template-columns:1fr;gap:40px}}
+.contact-info h2{font-family:var(--disp);font-size:clamp(20px,3vw,34px);font-weight:700;letter-spacing:-0.02em;line-height:1.1;margin-bottom:14px}
+.contact-info p{font-size:12px;font-weight:300;line-height:1.8;color:var(--text2);margin-bottom:28px}
+.cd-list{border:1px solid var(--border)}
+.cd{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;gap:13px;align-items:center}.cd:last-child{border-bottom:none}
+.cd-icon{width:28px;height:28px;border:1px solid var(--border2);display:grid;place-items:center;flex-shrink:0}
+.cd-icon svg{width:12px;height:12px;stroke:var(--indigo);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.cd-k{font-family:var(--mono);font-size:7px;color:var(--text3);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:2px}
+.cd-v{font-family:var(--mono);font-size:8.5px;color:var(--text)}
+.form-wrap{background:var(--s1);border:1px solid var(--border);padding:28px}
+.form-label-tag{font-family:var(--mono);font-size:7.5px;letter-spacing:0.16em;text-transform:uppercase;color:var(--indigo);margin-bottom:20px}
+.form{display:flex;flex-direction:column;gap:12px}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.field label{font-family:var(--mono);font-size:7.5px;letter-spacing:0.12em;text-transform:uppercase;color:var(--text3);display:block;margin-bottom:6px}
+.field input,.field textarea,.field select{width:100%;background:var(--s2);border:1px solid var(--border);color:var(--text);font-family:var(--mono);font-size:9.5px;padding:10px 12px;outline:none;transition:border-color 0.2s;appearance:none;resize:none}
+.field input:focus,.field textarea:focus,.field select:focus{border-color:var(--indigo)}
+.field input::placeholder,.field textarea::placeholder{color:var(--text3)}
+.field textarea{height:100px;line-height:1.6}
+.field select option{background:var(--s2)}
+.form-btn{font-family:var(--mono);font-size:8.5px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;background:var(--indigo);color:#fff;border:none;padding:13px;cursor:pointer;transition:opacity 0.2s;width:100%}
+.form-btn:hover{opacity:0.85}
+
+/* FOOTER */
+footer{border-top:1px solid var(--border);background:var(--s1)}
+.footer-top{max-width:1200px;margin:0 auto;padding:52px 28px 36px;display:grid;grid-template-columns:260px 1fr 1fr 1fr;gap:36px}
+@media(max-width:900px){.footer-top{grid-template-columns:1fr 1fr;gap:28px;padding:36px 28px 28px}}
+@media(max-width:500px){.footer-top{grid-template-columns:1fr}}
+.fb-logo{display:flex;align-items:center;gap:8px;margin-bottom:13px}
+.fb-icon{width:22px;height:22px;border:1.5px solid var(--indigo);position:relative;display:grid;place-items:center}
+.fb-icon::after{content:'';position:absolute;width:7px;height:7px;background:var(--indigo)}
+.fb-name{font-family:var(--disp);font-size:10px;font-weight:800;letter-spacing:0.2em;text-transform:uppercase}
+.fb-name em{color:var(--indigo);font-style:normal}
+.fb-desc{font-size:11px;font-weight:300;line-height:1.7;color:var(--text2);margin-bottom:16px}
+.fb-badge{display:inline-flex;align-items:center;gap:5px;border:1px solid var(--border2);padding:4px 9px}
+.fb-badge span{font-family:var(--mono);font-size:7px;color:var(--text3);letter-spacing:0.1em;text-transform:uppercase}
+.fcol h4{font-family:var(--mono);font-size:7.5px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:var(--indigo);margin-bottom:16px}
+.fcol ul{list-style:none;display:flex;flex-direction:column;gap:8px}
+.fcol li a,.fcol li button{font-size:11px;font-weight:300;color:var(--text2);text-decoration:none;transition:color 0.2s;background:none;border:none;cursor:pointer;padding:0;font-family:var(--sans);text-align:left}
+.fcol li a:hover,.fcol li button:hover{color:var(--text)}
+.footer-bot{max-width:1200px;margin:0 auto;padding:14px 28px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
+.footer-copy{font-family:var(--mono);font-size:7.5px;color:var(--text3);letter-spacing:0.1em;text-transform:uppercase}
+.footer-legal{display:flex;gap:16px}
+.footer-legal a{font-family:var(--mono);font-size:7.5px;color:var(--text3);text-decoration:none;letter-spacing:0.1em;text-transform:uppercase;transition:color 0.2s}
+.footer-legal a:hover{color:var(--text)}
+
+/* MODAL */
+.modal-bg{position:fixed;inset:0;background:rgba(3,3,8,0.96);backdrop-filter:blur(20px);z-index:800;display:none;place-items:center;padding:24px}
+.modal-bg.open{display:grid}
+.modal{background:var(--s1);border:1px solid var(--border);max-width:420px;width:100%;padding:36px;position:relative;animation:mfade 0.2s ease}
+@keyframes mfade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.mx{position:absolute;top:12px;right:12px;background:none;border:none;font-family:var(--mono);font-size:8.5px;color:var(--text3);letter-spacing:0.12em;text-transform:uppercase;cursor:pointer;padding:5px 8px;transition:color 0.2s}
+.mx:hover{color:var(--text)}
+.m-tag{font-family:var(--mono);font-size:7.5px;letter-spacing:0.16em;text-transform:uppercase;color:var(--indigo);margin-bottom:12px}
+.m-title{font-family:var(--disp);font-size:20px;font-weight:700;letter-spacing:-0.02em;margin-bottom:5px}
+.m-price{font-family:var(--disp);font-size:36px;font-weight:700;color:var(--indigo);letter-spacing:-0.02em;margin-bottom:20px}
+.m-hr{height:1px;background:var(--border);margin:18px 0}
+.m-rows{display:flex;flex-direction:column;gap:9px;margin-bottom:24px}
+.m-row{display:flex;justify-content:space-between;font-family:var(--mono);font-size:8px;letter-spacing:0.08em;text-transform:uppercase}
+.mr-k{color:var(--text3)}.mr-v{color:var(--text)}.mr-live{color:var(--green)}
+.m-note{font-family:var(--mono);font-size:7.5px;color:var(--text3);text-align:center;margin-top:12px;letter-spacing:0.08em}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;right:24px;background:var(--s1);border:1px solid var(--green);padding:12px 18px;z-index:900;display:flex;align-items:center;gap:9px;opacity:0;transform:translateY(8px);transition:all 0.3s;pointer-events:none}
+.toast.show{opacity:1;transform:translateY(0)}
+.toast-dot{width:5px;height:5px;border-radius:50%;background:var(--green)}
+.toast-txt{font-family:var(--mono);font-size:8.5px;color:var(--text);letter-spacing:0.08em}
+
+/* ORB */
+.orb{position:fixed;border-radius:50%;filter:blur(90px);pointer-events:none;z-index:0}
+.o1{width:450px;height:450px;background:rgba(91,91,214,0.05);top:-80px;right:-120px}
+.o2{width:320px;height:320px;background:rgba(91,91,214,0.04);bottom:15%;left:-80px}
+</style>
 </head>
-<body class="antialiased">
+<body>
 
-    <!-- NAVIGATION -->
-    <nav class="fixed top-0 w-full z-50 border-b border-white/5 bg-black/80 backdrop-blur-md">
-        <div class="max-w-7xl mx-auto px-6 h-16 flex justify-between items-center">
-            <div class="flex items-center gap-3">
-                <div class="w-8 h-8 bg-indigo-600 rounded flex items-center justify-center font-bold text-white">NL</div>
-                <span class="text-lg font-bold tracking-tight uppercase">Neural<span class="text-indigo-500">Logic</span></span>
-            </div>
-            <div class="flex gap-4">
-                <button onclick="document.getElementById('licensing').scrollIntoView()" class="px-4 py-1.5 btn-primary rounded text-[10px] font-bold uppercase tracking-widest">Portal Access</button>
-            </div>
-        </div>
-    </nav>
+<div class="orb o1"></div>
+<div class="orb o2"></div>
 
-    <!-- HERO -->
-    <section class="pt-32 pb-20 px-6">
-        <div class="max-w-7xl mx-auto grid lg:grid-cols-2 gap-12 items-center">
-            <div class="space-y-8">
-                <div class="inline-flex items-center gap-2 px-3 py-1 bg-zinc-900 border border-white/10 rounded">
-                    <span class="text-[9px] font-bold text-zinc-400 uppercase tracking-widest">IS & Business Graduated Professionals</span>
-                </div>
-                <h1 class="text-5xl font-bold tracking-tighter leading-[1.1]">
-                    Professional <br>Software <span class="text-indigo-500 italic">Licensing.</span>
-                </h1>
-                <p class="text-base text-zinc-400 leading-relaxed max-w-md font-light">
-                    We specialize in proprietary Information Systems logic and architectural assets. Secure a professional license for enterprise-grade automation tools.
-                </p>
-                <div class="flex gap-4 pt-4">
-                    <button onclick="document.getElementById('licensing').scrollIntoView()" class="px-8 py-4 btn-primary font-bold rounded text-xs uppercase tracking-widest">Browse IP Catalog</button>
-                </div>
-            </div>
-
-            <!-- CHAT INTERFACE -->
-            <div class="premium-card rounded-3xl overflow-hidden bg-zinc-950/50">
-                <div class="p-4 bg-zinc-900/50 border-b border-white/5 flex justify-between items-center">
-                    <span class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Node: 0x4492 [AUTHORIZED]</span>
-                    <span class="license-badge">VERIFIED IS ASSET</span>
-                </div>
-                <div id="chat-window" class="mono">
-                    <div class="msg bot-msg">
-                        > Connection established.<br>
-                        > System: Neural Desk v4.0 Active.<br>
-                        > Awaiting professional inquiry regarding system architecture.
-                    </div>
-                </div>
-                <div class="p-4 bg-black/40">
-                    <form id="chat-form" class="relative">
-                        <input id="chat-input" type="text" placeholder="Command input..." class="w-full bg-zinc-900 border border-white/10 rounded-lg px-4 py-3 text-xs mono focus:border-indigo-500 outline-none">
-                        <button type="submit" class="absolute right-2.5 top-2.5 p-1.5 btn-primary rounded">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M14 5l7 7m0 0l-7 7m7-7H3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                        </button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- ASSETS -->
-    <section id="licensing" class="py-24 bg-zinc-950/50 border-y border-white/5 px-6">
-        <div class="max-w-7xl mx-auto">
-            <div class="grid md:grid-cols-3 gap-8">
-                
-                <!-- ASSET 1 -->
-                <div class="premium-card p-8 rounded-2xl flex flex-col product-card">
-                    <div class="flex-grow space-y-4">
-                        <div class="flex justify-between items-start">
-                            <div class="text-[9px] font-black text-indigo-500 uppercase tracking-widest">IP TYPE: RESEARCH</div>
-                            <span class="license-badge">PDF ASSET</span>
-                        </div>
-                        <h3 class="text-xl font-bold">Academic <br>Strategy License</h3>
-                        <p class="text-zinc-500 text-xs leading-relaxed">
-                            A 30-page architectural strategy report on AI systems deployment for Business Information Systems.
-                        </p>
-                    </div>
-                    <div class="mt-8">
-                        <div class="text-3xl font-bold mb-6">$29<span class="text-xs text-zinc-700">.00</span></div>
-                        <button onclick="buy('ARTICLE')" class="w-full py-3.5 btn-primary font-bold rounded uppercase text-[10px] tracking-widest">License Content</button>
-                    </div>
-                </div>
-
-                <!-- ASSET 2 -->
-                <div class="premium-card p-8 rounded-2xl flex flex-col product-card border-indigo-500/20 bg-indigo-500/[0.02]">
-                    <div class="flex-grow space-y-4">
-                        <div class="flex justify-between items-start">
-                            <div class="text-[9px] font-black text-indigo-400 uppercase tracking-widest">IP TYPE: SOFTWARE</div>
-                            <span class="license-badge">API KEY</span>
-                        </div>
-                        <h3 class="text-xl font-bold">Neural Logic <br>Front Desk</h3>
-                        <p class="text-zinc-300 text-xs leading-relaxed">
-                            30-day license for our proprietary API Instance. Automated lead qualification logic for enterprise scale.
-                        </p>
-                    </div>
-                    <div class="mt-8">
-                        <div class="text-3xl font-bold mb-6">$39<span class="text-xs text-zinc-700">/mo</span></div>
-                        <button onclick="buy('SAAS')" class="w-full py-3.5 btn-primary font-bold rounded uppercase text-[10px] tracking-widest shadow-lg shadow-indigo-600/20">Provision API</button>
-                    </div>
-                </div>
-
-                <!-- ASSET 3 -->
-                <div class="premium-card p-8 rounded-2xl flex flex-col product-card">
-                    <div class="flex-grow space-y-4">
-                        <div class="flex justify-between items-start">
-                            <div class="text-[9px] font-black text-indigo-500 uppercase tracking-widest">IP TYPE: DESIGN</div>
-                            <span class="license-badge">FULL MAP</span>
-                        </div>
-                        <h3 class="text-xl font-bold">Systems <br>Blueprint</h3>
-                        <p class="text-zinc-500 text-xs leading-relaxed">
-                            Bespoke architectural logic design for firm-wide integration. Engineered by systems professionals.
-                        </p>
-                    </div>
-                    <div class="mt-8">
-                        <div class="text-3xl font-bold mb-6">$499<span class="text-xs text-zinc-700">.00</span></div>
-                        <button onclick="buy('BLUEPRINT')" class="w-full py-3.5 btn-primary font-bold rounded uppercase text-[10px] tracking-widest">Request Design</button>
-                    </div>
-                </div>
-
-            </div>
-        </div>
-    </section>
-
-    <!-- FOOTER INFO -->
-    <section class="py-20 px-6">
-        <div class="max-w-4xl mx-auto text-center space-y-6">
-            <h2 class="text-2xl font-bold uppercase tracking-tight">Professional Standards</h2>
-            <p class="text-zinc-500 text-sm leading-relaxed max-w-xl mx-auto font-light">
-                Neural Logic products are authored and engineered by <strong>Graduated Professionals</strong> with specialized degrees in <strong>Business Administration and Information Systems</strong>.
-            </p>
-            <div class="flex justify-center gap-12 pt-6 text-zinc-600 font-bold uppercase text-[9px] tracking-widest">
-                <span>Degree: Business / IS</span>
-                <span>Type: Proprietary Assets</span>
-            </div>
-        </div>
-    </section>
-
-    <footer class="py-12 border-t border-white/5 text-center text-[9px] font-bold text-zinc-700 uppercase tracking-[1em]">
-        Neural Logic // Licensing Hub
-    </footer>
-
-    <!-- MODAL -->
-    <div id="buyModal" class="fixed inset-0 z-[100] bg-black/95 backdrop-blur-md hidden flex items-center justify-center p-6" onclick="closeModal()">
-        <div class="premium-card p-10 rounded-2xl max-w-sm w-full text-center space-y-6" onclick="event.stopPropagation()">
-            <h2 id="mTitle" class="text-xl font-bold text-white tracking-tight"></h2>
-            <div id="mPrice" class="text-3xl font-bold text-indigo-400"></div>
-            <div class="text-[10px] text-zinc-500 uppercase tracking-widest">Encryption: AES-256 Authorized</div>
-            <a id="mLink" href="#" class="block w-full py-4 btn-primary font-bold rounded uppercase text-[10px] tracking-widest">Proceed to Authorization</a>
-            <button onclick="closeModal()" class="text-[9px] font-bold text-zinc-600 uppercase hover:text-white transition">Exit Terminal</button>
-        </div>
+<!-- NAV -->
+<nav>
+  <div class="nav-wrap">
+    <div class="logo" onclick="goPage('home')">
+      <div class="logo-icon"></div>
+      <span class="logo-name">IS <em>Licensing</em> Core</span>
     </div>
+    <div class="nav-links">
+      <button class="nav-link active" id="nl-home" onclick="goPage('home')">Home</button>
+      <button class="nav-link" id="nl-catalog" onclick="goPage('catalog')">Catalog</button>
+      <button class="nav-link" id="nl-usecases" onclick="goPage('usecases')">Use Cases</button>
+      <button class="nav-link" id="nl-about" onclick="goPage('about')">About</button>
+      <button class="nav-link" id="nl-faq" onclick="goPage('faq')">FAQ</button>
+      <button class="nav-link" id="nl-contact" onclick="goPage('contact')">Contact</button>
+    </div>
+    <div class="nav-r">
+      <div class="nav-status"><div class="sdot"></div><span style="font-family:var(--mono);font-size:7.5px;letter-spacing:0.08em">Systems Online</span></div>
+      <button class="nav-cta" onclick="goPage('catalog')">Get Licensed</button>
+    </div>
+  </div>
+</nav>
 
-    <script>
-        const chatForm = document.getElementById('chat-form');
-        const chatInput = document.getElementById('chat-input');
-        const chatWindow = document.getElementById('chat-window');
+<!-- TICKER -->
+<div class="ticker">
+  <div class="ticker-inner">
+    <span class="tick">AES-256 Encryption</span><span class="tick">IS & Business Graduates</span><span class="tick">Enterprise Automation</span><span class="tick">30-Day Provisioning</span><span class="tick">Proprietary Architecture</span><span class="tick">Neural Desk API v4.0</span><span class="tick">Non-Transferable Licenses</span><span class="tick">IS Licensing Core Platform</span><span class="tick">AES-256 Encryption</span><span class="tick">IS & Business Graduates</span><span class="tick">Enterprise Automation</span><span class="tick">30-Day Provisioning</span><span class="tick">Proprietary Architecture</span><span class="tick">Neural Desk API v4.0</span><span class="tick">Non-Transferable Licenses</span><span class="tick">IS Licensing Core Platform</span>
+  </div>
+</div>
 
-        chatForm.onsubmit = (e) => {
-            e.preventDefault();
-            const val = chatInput.value.trim();
-            if(!val) return;
-            addMsg(`> ${val}`, 'user-msg');
-            chatInput.value = '';
-            setTimeout(() => {
-                addMsg("> REQUEST_LOG: Professional license required for deeper system diagnostics.", 'bot-msg');
-            }, 800);
-        };
+<!-- ========== HOME PAGE ========== -->
+<div id="page-home" class="page active">
 
-        function addMsg(text, type) {
-            const div = document.createElement('div');
-            div.className = `msg ${type}`;
-            div.innerHTML = text.replace(/\n/g, '<br>');
-            chatWindow.appendChild(div);
-            chatWindow.scrollTop = chatWindow.scrollHeight;
-        }
+  <!-- HERO -->
+  <div class="hero-grid">
+    <div>
+      <div class="hero-badge"><div class="sdot"></div><span class="hero-badge-t">IS & Business Professionals · Proprietary IS Assets · Now Licensing</span></div>
+      <h1 class="hero-h1">
+        <span class="hl-a">Enterprise</span>
+        <span class="hl-b">IS</span>
+        <span class="hl-c">Licensing.</span>
+      </h1>
+      <p class="hero-sub">Proprietary Information Systems logic, architectural assets, and live API instances — engineered by IS and Business graduates. Acquire a professional license and deploy enterprise-grade automation on day one.</p>
+      <div class="hero-acts">
+        <button class="btn btn-fill" onclick="goPage('catalog')">Browse IS Catalog</button>
+        <button class="btn btn-outline" onclick="goPage('about')">About the Platform</button>
+      </div>
+      <div class="hero-metrics">
+        <div class="hm"><div class="hm-val">3+</div><div class="hm-k">IS Assets</div></div>
+        <div class="hm"><div class="hm-val">AES</div><div class="hm-k">Encryption</div></div>
+        <div class="hm"><div class="hm-val">B.IS</div><div class="hm-k">Degree Type</div></div>
+        <div class="hm"><div class="hm-val">30d</div><div class="hm-k">API License</div></div>
+      </div>
+    </div>
+    <!-- TERMINAL -->
+    <div class="terminal">
+      <div class="tbar">
+        <div class="tdots"><div class="td td1"></div><div class="td td2"></div><div class="td td3"></div></div>
+        <span class="ttitle">Neural Desk v4.0 · Node: 0x4492</span>
+        <span class="tver">LIVE</span>
+      </div>
+      <div class="chat-body" id="chat-window">
+        <div class="msg bot">> IS Licensing Core Terminal<br>> Node 0x4492 — Authorization Active<br>> Awaiting professional inquiry.</div>
+      </div>
+      <div class="cfoot">
+        <input class="cinp" id="chat-input" type="text" placeholder="Enter command or query...">
+        <button class="csend" id="chat-send">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 5l7 7-7 7M3 12h18"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
 
-        const plans = {
-            ARTICLE: { title: 'Strategy License', price: '$29.00' },
-            SAAS: { title: 'API Provision', price: '$39.00/mo' },
-            BLUEPRINT: { title: 'System Blueprint', price: '$499.00' }
-        };
+  <!-- STANDARDS BAR -->
+  <div class="std-bar">
+    <div class="std-inner">
+      <div class="std"><div class="std-icon"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div><div class="std-t">AES-256 Secured</div><div class="std-d">Every license is cryptographically secured end-to-end.</div></div>
+      <div class="std"><div class="std-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg></div><div class="std-t">Degree-Backed IS</div><div class="std-d">All assets authored by Business & IS graduates.</div></div>
+      <div class="std"><div class="std-icon"><svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></div><div class="std-t">Enterprise API</div><div class="std-d">Production-ready automation logic with full provisioning.</div></div>
+      <div class="std"><div class="std-icon"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg></div><div class="std-t">Professional Support</div><div class="std-d">Direct access to the IS engineering team post-acquisition.</div></div>
+    </div>
+  </div>
 
-        function buy(id) {
-            const p = plans[id];
-            document.getElementById('mTitle').innerText = p.title;
-            document.getElementById('mPrice').innerText = p.price;
-            document.getElementById('buyModal').classList.remove('hidden');
-        }
+  <!-- PLATFORM FEATURES -->
+  <section class="ph2">
+    <div class="sw">
+      <div class="slr"><span class="sl">Platform</span><div class="sline"></div><span class="sn">01</span></div>
+      <div style="margin-bottom:44px">
+        <h2 style="font-family:var(--disp);font-size:clamp(24px,3.5vw,42px);font-weight:700;letter-spacing:-0.025em;line-height:1.05;margin-bottom:11px">Why IS Licensing Core</h2>
+        <p style="font-size:12.5px;font-weight:300;line-height:1.82;color:var(--text2);max-width:500px">We don't sell software templates. We license original, professionally engineered IS assets — designed from the ground up by IS and Business graduates for real enterprise needs.</p>
+      </div>
+      <div class="feat-grid">
+        <div class="feat"><div class="feat-n">// 01</div><div class="feat-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div><div class="feat-t">Original Research Assets</div><div class="feat-d">Every document is authored from scratch — no aggregated content, no templates. Deep IS architectural analysis grounded in real methodology and business frameworks.</div></div>
+        <div class="feat"><div class="feat-n">// 02</div><div class="feat-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg></div><div class="feat-t">Live API Instances</div><div class="feat-d">Not documentation — fully provisioned API keys connecting to running, maintained automation logic. Plug directly into your stack the day you license.</div></div>
+        <div class="feat"><div class="feat-n">// 03</div><div class="feat-icon"><svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg></div><div class="feat-t">Bespoke Architecture Maps</div><div class="feat-d">For complex integration needs, we deliver custom IS blueprints scoped to your firm — designed by professionals who understand enterprise system design.</div></div>
+        <div class="feat"><div class="feat-n">// 04</div><div class="feat-icon"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div><div class="feat-t">Secure License Delivery</div><div class="feat-d">AES-256 encrypted transmission for every license. Your keys, documents, and blueprints arrive through a verified channel — no third-party intermediaries.</div></div>
+        <div class="feat"><div class="feat-n">// 05</div><div class="feat-icon"><svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg></div><div class="feat-t">Scalable IS Logic</div><div class="feat-d">The API and automation systems are engineered to scale — from 50 to 50,000 daily queries. The IS logic layer adapts to enterprise-volume operations.</div></div>
+        <div class="feat"><div class="feat-n">// 06</div><div class="feat-icon"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg></div><div class="feat-t">Professional Consultation</div><div class="feat-d">Blueprint clients get direct access to IS professionals for scoping and design sessions. You're acquiring a working professional relationship, not just a file.</div></div>
+      </div>
+    </div>
+  </section>
 
-        function closeModal() { document.getElementById('buyModal').classList.add('hidden'); }
-    </script>
+  <!-- HOW IT WORKS -->
+  <section class="ph">
+    <div class="sw">
+      <div class="slr"><span class="sl">Process</span><div class="sline"></div><span class="sn">02</span></div>
+      <div class="hiw-layout">
+        <div>
+          <h2 style="font-family:var(--disp);font-size:clamp(22px,3vw,36px);font-weight:700;letter-spacing:-0.025em;line-height:1.05;margin-bottom:11px">Acquiring a License in 4 Steps</h2>
+          <p style="font-size:12px;font-weight:300;line-height:1.82;color:var(--text2);margin-bottom:32px">From catalog selection to live integration — direct, secure, professionally managed.</p>
+          <div>
+            <div class="step"><div class="step-n">01</div><div><div class="step-t">Browse the IS Catalog</div><div class="step-d">Review the three licensing tiers: Research (PDF), Software (API), and Design (Blueprint). Each asset is documented with scope, delivery format, and pricing.</div></div></div>
+            <div class="step"><div class="step-n">02</div><div><div class="step-t">Select Your License Tier</div><div class="step-d">Choose the asset matching your operational need. Single-entity licenses are non-transferable and scoped to your organization.</div></div></div>
+            <div class="step"><div class="step-n">03</div><div><div class="step-t">Secure Authorization</div><div class="step-d">Complete the AES-256 secured payment portal. Identity and transaction are verified before any IS asset is provisioned or transmitted.</div></div></div>
+            <div class="step"><div class="step-n">04</div><div><div class="step-t">Receive &amp; Integrate</div><div class="step-d">PDF assets delivered instantly. API keys provisioned same-day. Blueprints begin a consultation engagement within 48 hours.</div></div></div>
+          </div>
+        </div>
+        <div class="hiw-cards">
+          <div class="hiw-card"><div class="hiw-ct">// Delivery: Research Tier</div><div class="hiw-ch">Academic Strategy PDF</div><div class="hiw-cd">30-page IS architectural strategy document covering AI deployment models, IS integration frameworks, and business automation theory. Delivered as a secured, watermarked PDF.</div><div class="hiw-meta"><div class="hm-item">Delivery: <strong>Instant</strong></div><div class="hm-item">Format: <strong>PDF</strong></div><div class="hm-item">Scope: <strong>Single Entity</strong></div></div></div>
+          <div class="hiw-card"><div class="hiw-ct">// Delivery: Software Tier</div><div class="hiw-ch">Neural Logic API Instance</div><div class="hiw-cd">Proprietary API key provisioned to a live automation instance. Automated lead qualification, data routing, and IS logic layer access — integrates via REST same-day.</div><div class="hiw-meta"><div class="hm-item">Delivery: <strong>Same-Day</strong></div><div class="hm-item">Format: <strong>API Key</strong></div><div class="hm-item">Term: <strong>30 Days</strong></div></div></div>
+          <div class="hiw-card"><div class="hiw-ct">// Delivery: Design Tier</div><div class="hiw-ch">Systems Blueprint</div><div class="hiw-cd">Bespoke IS architectural design scoped to your firm. Begins with a 60-min consultation, followed by a fully annotated system map with one revision round included.</div><div class="hiw-meta"><div class="hm-item">Delivery: <strong>7–14 Days</strong></div><div class="hm-item">Format: <strong>Full Map</strong></div><div class="hm-item">Scope: <strong>Custom</strong></div></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA BAND -->
+  <div class="cta-band">
+    <div class="cta-inner">
+      <div class="cta-tag">// IS Licensing Core</div>
+      <h2 class="cta-h2">Ready to License<br>Professional IS Assets?</h2>
+      <p class="cta-sub">Choose your tier and provision access today. All licenses are single-entity, non-transferable, and delivered through AES-256 secured channels.</p>
+      <div class="cta-acts">
+        <button class="btn btn-fill" onclick="goPage('catalog')">Browse IS Catalog</button>
+        <button class="btn btn-outline" onclick="goPage('contact')">Contact Us First</button>
+      </div>
+    </div>
+  </div>
+
+</div><!-- end home -->
+
+<!-- ========== CATALOG PAGE ========== -->
+<div id="page-catalog" class="page">
+  <section class="ph2">
+    <div class="sw">
+      <div class="slr"><span class="sl">IS Catalog</span><div class="sline"></div><span class="sn">Licensed Assets</span></div>
+      <div class="cat-intro">
+        <div><h2 class="cat-h2">Licensed<br>IS Assets</h2></div>
+        <div class="cat-sub"><p>All licenses are single-entity, non-transferable, and authored by IS professionals. Select the tier that matches your operational scope — from individual research access to firm-wide architectural deployment.</p><p>Pricing reflects the proprietary nature of the work. These are original, professional-grade IS assets — not resold templates.</p></div>
+      </div>
+      <div class="pgrid">
+        <div class="pc">
+          <div class="pc-corner"></div>
+          <div class="pc-type">IS Type: Research <span class="pc-badge">PDF Asset</span></div>
+          <h3 class="pc-h">Academic<br>Strategy License</h3>
+          <p class="pc-d">A professionally authored 30-page IS architectural strategy report covering AI systems deployment methodologies for Business Information Systems environments. Grounded in IS theory and enterprise practice.</p>
+          <ul class="pc-feats"><li>30-page IS architectural strategy document</li><li>AI deployment frameworks & models</li><li>Business IS integration methodology</li><li>Authored by credentialed IS professionals</li><li>Secured, watermarked PDF delivery</li><li>Single-entity perpetual license</li></ul>
+          <div class="pc-period">One-time payment</div>
+          <div class="pc-price">$29</div>
+          <button class="btn-card" onclick="openModal('ARTICLE')">Acquire License</button>
+        </div>
+        <div class="pc hot">
+          <div class="pc-corner"></div>
+          <div class="pc-type" style="color:var(--indigo-hi)">IS Type: Software <span class="pc-badge">API Key</span></div>
+          <h3 class="pc-h">Neural Logic<br>Front Desk API</h3>
+          <p class="pc-d">30-day access license for a live, proprietary Neural Desk API instance. Automated lead qualification, intelligent IS routing logic, and enterprise-scale data handling — ready for immediate integration.</p>
+          <ul class="pc-feats"><li>Live proprietary API key provisioning</li><li>Automated lead qualification logic</li><li>Enterprise-scale request handling</li><li>REST-compatible, JSON-native</li><li>Same-day provisioning on authorization</li><li>Renewable on 30-day cycle</li></ul>
+          <div class="pc-period">Per month</div>
+          <div class="pc-price">$39</div>
+          <button class="btn-card" onclick="openModal('SAAS')">Provision API</button>
+        </div>
+        <div class="pc">
+          <div class="pc-corner"></div>
+          <div class="pc-type">IS Type: Design <span class="pc-badge">Full Map</span></div>
+          <h3 class="pc-h">Systems<br>Blueprint</h3>
+          <p class="pc-d">Bespoke IS architectural logic design scoped specifically to your firm's integration requirements. Custom-engineered by IS professionals with full consultation, annotation, and one revision round.</p>
+          <ul class="pc-feats"><li>60-min IS scoping consultation</li><li>Custom IS architecture design</li><li>Firm-wide integration logic</li><li>Fully annotated IS system map</li><li>One revision round included</li><li>Delivered in 7–14 business days</li></ul>
+          <div class="pc-period">One-time payment</div>
+          <div class="pc-price">$499</div>
+          <button class="btn-card" onclick="openModal('BLUEPRINT')">Request Design</button>
+        </div>
+      </div>
+      <!-- COMPARE TABLE -->
+      <div class="ctable-wrap">
+        <div class="ctable-head"><span class="ctable-tag">// License Comparison</span></div>
+        <div style="overflow-x:auto">
+          <table>
+            <thead><tr><th style="text-align:left">Feature</th><th>Strategy ($29)</th><th class="col-hot">Front Desk ($39/mo)</th><th>Blueprint ($499)</th></tr></thead>
+            <tbody>
+              <tr><td>IS Research Document</td><td class="c-yes">✓</td><td class="c-no">–</td><td class="c-no">–</td></tr>
+              <tr><td>Live API Access</td><td class="c-no">–</td><td class="c-yes">✓</td><td class="c-no">–</td></tr>
+              <tr><td>Custom IS Architecture Design</td><td class="c-no">–</td><td class="c-no">–</td><td class="c-yes">✓</td></tr>
+              <tr><td>Professional IS Consultation</td><td class="c-no">–</td><td class="c-no">–</td><td class="c-yes">✓</td></tr>
+              <tr><td>AES-256 Encryption</td><td class="c-yes">✓</td><td class="c-yes">✓</td><td class="c-yes">✓</td></tr>
+              <tr><td>Degree-Backed Authorship</td><td class="c-yes">✓</td><td class="c-yes">✓</td><td class="c-yes">✓</td></tr>
+              <tr><td>Single-Entity License</td><td class="c-yes">✓</td><td class="c-yes">✓</td><td class="c-yes">✓</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ========== USE CASES PAGE ========== -->
+<div id="page-usecases" class="page">
+  <section class="ph">
+    <div class="sw">
+      <div class="slr"><span class="sl">Use Cases</span><div class="sline"></div><span class="sn">Who Licenses IS Core</span></div>
+      <div style="margin-bottom:44px">
+        <h2 style="font-family:var(--disp);font-size:clamp(24px,3.5vw,42px);font-weight:700;letter-spacing:-0.025em;line-height:1.05;margin-bottom:11px">Who Licenses IS Core</h2>
+        <p style="font-size:12.5px;font-weight:300;line-height:1.82;color:var(--text2);max-width:500px">Our IS assets serve professionals and organizations at different stages of IS integration — from individual learners to enterprise operations teams.</p>
+      </div>
+      <div class="uc-grid">
+        <div class="uc"><div class="uc-tag">// Use Case 01</div><h3 class="uc-t">IS Students &amp; Graduates</h3><p class="uc-d">Academic Strategy License holders use the research document as a reference framework for capstone projects, thesis work, and academic presentations. The 30-page document is grounded in real IS methodology — not generic business theory — making it a credible reference tool for advanced coursework in Information Systems and Business Administration programs.</p><div class="uc-pills"><span class="uc-pill">Academic Use</span><span class="uc-pill">IS Research Reference</span><span class="uc-pill">Thesis Work</span></div></div>
+        <div class="uc"><div class="uc-tag">// Use Case 02</div><h3 class="uc-t">Startup Operations Teams</h3><p class="uc-d">Early-stage companies license the Neural Desk API to automate lead intake, qualification, and routing — without hiring a dedicated IS team. The API handles the IS logic layer so your team focuses on closing, not triaging. Plug into your CRM or internal tooling via REST in under a day and eliminate manual qualification overhead entirely.</p><div class="uc-pills"><span class="uc-pill">Lead Automation</span><span class="uc-pill">CRM Integration</span><span class="uc-pill">REST API</span></div></div>
+        <div class="uc"><div class="uc-tag">// Use Case 03</div><h3 class="uc-t">Enterprise IS Teams</h3><p class="uc-d">Mid-to-large organizations with complex system landscapes commission the Systems Blueprint for firm-wide IS architecture design. The output is a fully scoped, professionally designed architectural map that serves as the foundation for procurement, implementation, and audit documentation — engineered to enterprise IS standards from day one.</p><div class="uc-pills"><span class="uc-pill">IS Architecture</span><span class="uc-pill">Firm-Wide Scope</span><span class="uc-pill">Audit Ready</span></div></div>
+        <div class="uc"><div class="uc-tag">// Use Case 04</div><h3 class="uc-t">IS Consultants &amp; Advisors</h3><p class="uc-d">IS consultants license the research and blueprint assets to support client engagements. A single-entity license covers the advisor's own use in designing client IS solutions — delivering professionally engineered assets without the overhead of in-house research production. Ideal for independent IS practitioners managing multiple client environments.</p><div class="uc-pills"><span class="uc-pill">Client Engagements</span><span class="uc-pill">IS Consulting</span><span class="uc-pill">Deliverable Support</span></div></div>
+      </div>
+
+      <!-- EXTRA: Metrics strip -->
+      <div style="margin-top:60px;display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);border:1px solid var(--border)">
+        <div style="background:var(--s1);padding:28px 24px">
+          <div style="font-family:var(--mono);font-size:7.5px;color:var(--indigo);letter-spacing:0.15em;text-transform:uppercase;margin-bottom:10px">// Research Tier</div>
+          <div style="font-family:var(--disp);font-size:28px;font-weight:700;letter-spacing:-0.02em;margin-bottom:4px">$29</div>
+          <div style="font-size:11.5px;font-weight:300;color:var(--text2)">Best for academics, students, and independent IS researchers seeking a professionally authored strategy reference.</div>
+          <button class="btn btn-outline" style="margin-top:18px;padding:10px 18px;font-size:8px" onclick="openModal('ARTICLE')">Acquire →</button>
+        </div>
+        <div style="background:var(--indigo-dim);padding:28px 24px">
+          <div style="font-family:var(--mono);font-size:7.5px;color:var(--indigo-hi);letter-spacing:0.15em;text-transform:uppercase;margin-bottom:10px">// Software Tier · Most Popular</div>
+          <div style="font-family:var(--disp);font-size:28px;font-weight:700;letter-spacing:-0.02em;margin-bottom:4px">$39<span style="font-size:14px;font-weight:400;color:var(--text3)">/mo</span></div>
+          <div style="font-size:11.5px;font-weight:300;color:var(--text2)">Best for startups and operations teams needing live IS automation logic without building in-house infrastructure.</div>
+          <button class="btn btn-fill" style="margin-top:18px;padding:10px 18px;font-size:8px" onclick="openModal('SAAS')">Provision →</button>
+        </div>
+        <div style="background:var(--s1);padding:28px 24px">
+          <div style="font-family:var(--mono);font-size:7.5px;color:var(--indigo);letter-spacing:0.15em;text-transform:uppercase;margin-bottom:10px">// Design Tier</div>
+          <div style="font-family:var(--disp);font-size:28px;font-weight:700;letter-spacing:-0.02em;margin-bottom:4px">$499</div>
+          <div style="font-size:11.5px;font-weight:300;color:var(--text2)">Best for enterprises and IS consultants requiring custom IS architectural design scoped to their exact environment.</div>
+          <button class="btn btn-outline" style="margin-top:18px;padding:10px 18px;font-size:8px" onclick="openModal('BLUEPRINT')">Request →</button>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ========== ABOUT PAGE ========== -->
+<div id="page-about" class="page">
+  <section class="ph">
+    <div class="sw">
+      <div class="slr"><span class="sl">About</span><div class="sline"></div><span class="sn">The Platform</span></div>
+      <div class="about-layout">
+        <div>
+          <h2 class="about-h2">Built by IS &amp;<br>Business Graduates</h2>
+          <div class="about-txt">
+            <p>IS Licensing Core was founded by graduates with specialized degrees in Business Administration and Information Systems — professionals who understood the gap between generic software products and real, enterprise-grade IS architecture.</p>
+            <p>The platform exists because enterprise-quality IS logic was locked inside large consulting firms or inaccessible to growing organizations. We license proprietary, degree-backed assets at a fraction of the cost of traditional IS consulting — without compromising on professional rigor.</p>
+            <p>Every document is written by a credentialed IS professional. Every API endpoint is maintained and documented by the engineering team. Every blueprint is custom-scoped, not templated. That's the standard we hold ourselves to — and what your license fee pays for.</p>
+            <p>We currently offer three license tiers and are developing additional IS assets in the areas of enterprise data governance, IS audit frameworks, and organizational automation design.</p>
+          </div>
+        </div>
+        <div class="cred-grid">
+          <div class="cred"><div class="cred-k">Degree Field</div><div class="cred-v">Business Administration</div></div>
+          <div class="cred"><div class="cred-k">Specialization</div><div class="cred-v">Information Systems</div></div>
+          <div class="cred"><div class="cred-k">Asset Type</div><div class="cred-v">Proprietary IS</div></div>
+          <div class="cred"><div class="cred-k">License Format</div><div class="cred-v">Non-Transferable</div></div>
+          <div class="cred"><div class="cred-k">Encryption</div><div class="cred-v">AES-256</div></div>
+          <div class="cred"><div class="cred-k">API Protocol</div><div class="cred-v">REST / JSON</div></div>
+          <div class="cred"><div class="cred-k">Blueprint Lead Time</div><div class="cred-v">7–14 Business Days</div></div>
+          <div class="cred"><div class="cred-k">Support Type</div><div class="cred-v">Direct IS Professional</div></div>
+        </div>
+      </div>
+
+      <!-- MISSION STRIP -->
+      <div style="margin-top:72px;border:1px solid var(--border);background:var(--s1);padding:40px 36px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:36px;border-top:3px solid var(--indigo)">
+        <div>
+          <div style="font-family:var(--mono);font-size:7.5px;color:var(--indigo);letter-spacing:0.16em;text-transform:uppercase;margin-bottom:11px">// Mission</div>
+          <div style="font-family:var(--disp);font-size:14px;font-weight:700;margin-bottom:8px">Make enterprise IS accessible</div>
+          <div style="font-size:11.5px;font-weight:300;line-height:1.75;color:var(--text2)">Professional-grade IS assets shouldn't require a six-figure consulting retainer. We make them available at a price any serious organization or IS professional can access.</div>
+        </div>
+        <div>
+          <div style="font-family:var(--mono);font-size:7.5px;color:var(--indigo);letter-spacing:0.16em;text-transform:uppercase;margin-bottom:11px">// Standard</div>
+          <div style="font-family:var(--disp);font-size:14px;font-weight:700;margin-bottom:8px">No templates. Only originals.</div>
+          <div style="font-size:11.5px;font-weight:300;line-height:1.75;color:var(--text2)">Every IS asset on the platform is authored specifically for IS Licensing Core. We don't aggregate, repackage, or resell existing content. The work is original and the authorship is documented.</div>
+        </div>
+        <div>
+          <div style="font-family:var(--mono);font-size:7.5px;color:var(--indigo);letter-spacing:0.16em;text-transform:uppercase;margin-bottom:11px">// Future</div>
+          <div style="font-family:var(--disp);font-size:14px;font-weight:700;margin-bottom:8px">Expanding the IS catalog</div>
+          <div style="font-size:11.5px;font-weight:300;line-height:1.75;color:var(--text2)">New IS assets in development include enterprise data governance frameworks, IS audit methodology documents, and a second API instance focused on automated IS compliance monitoring.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ========== FAQ PAGE ========== -->
+<div id="page-faq" class="page">
+  <section class="ph2">
+    <div class="sw">
+      <div class="slr"><span class="sl">FAQ</span><div class="sline"></div><span class="sn">Common Questions</span></div>
+      <div class="faq-layout">
+        <div class="faq-intro">
+          <h2>Common<br>Questions</h2>
+          <p style="margin-top:12px">Everything you need to know before acquiring an IS Licensing Core asset. Not answered here? Reach us directly via the Contact page.</p>
+          <button class="btn btn-outline" style="margin-top:24px;font-size:8px;padding:11px 20px" onclick="goPage('contact')">Contact Us →</button>
+        </div>
+        <div>
+          <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">What does "single-entity" license mean?<span class="faq-arr">+</span></div><div class="faq-a">A single-entity license means the IS asset is licensed to one organization or individual. It cannot be resold, transferred, sublicensed, or shared across multiple entities. The license is bound to the organization named at the point of authorization.</div></div>
+          <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">How is the API key delivered?<span class="faq-arr">+</span></div><div class="faq-a">API keys are provisioned same-day upon successful authorization. They are delivered via the encrypted channel associated with your billing email. You will receive the key, endpoint documentation, and basic integration instructions within hours of payment confirmation.</div></div>
+          <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">Can I renew the API license after 30 days?<span class="faq-arr">+</span></div><div class="faq-a">Yes. The Neural Logic Front Desk API license is renewable on a 30-day cycle. You will receive a renewal notification 5 days before expiry. Renewal maintains the same API key and endpoint — no re-integration required.</div></div>
+          <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">What's included in the Systems Blueprint consultation?<span class="faq-arr">+</span></div><div class="faq-a">The Blueprint license includes a 60-minute IS scoping consultation with a professional, a full IS architectural design delivered as a detailed system map (PDF + source files), and one revision round. Additional revisions or expanded scope can be arranged separately.</div></div>
+          <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">Are these assets produced by AI?<span class="faq-arr">+</span></div><div class="faq-a">No. All IS assets are authored by human professionals with degrees in Business Administration and Information Systems. We don't sell AI-generated content. The value of our IS assets lies in the professional judgment, methodology, and domain expertise behind them.</div></div>
+          <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">Is there a refund policy?<span class="faq-arr">+</span></div><div class="faq-a">Due to the proprietary nature of the IS assets, licenses are non-refundable once provisioned. For API licenses, if there is a verified technical failure on our end preventing access within the first 48 hours, we will extend the license period accordingly.</div></div>
+          <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">Can I use the research document in client-facing work?<span class="faq-arr">+</span></div><div class="faq-a">The Academic Strategy License covers your own professional use, including using the document as a reference framework in your own work. It does not permit reproduction, redistribution, or direct resale of the document. For client-facing use cases, contact us about an extended licensing arrangement.</div></div>
+          <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">How long does Blueprint delivery take?<span class="faq-arr">+</span></div><div class="faq-a">The Blueprint process begins with a scoping consultation within 48 hours of authorization. Full IS architectural design delivery typically takes 7–14 business days depending on scope complexity. You will receive a timeline estimate after the scoping session.</div></div>
+          <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">What IS stack does the API integrate with?<span class="faq-arr">+</span></div><div class="faq-a">The Neural Logic Front Desk API is REST-based and JSON-native, making it compatible with any modern stack. It has been tested with major CRM platforms, custom Node.js and Python environments, and standard webhook-based automation pipelines.</div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ========== CONTACT PAGE ========== -->
+<div id="page-contact" class="page">
+  <section class="ph">
+    <div class="sw">
+      <div class="slr"><span class="sl">Contact</span><div class="sline"></div><span class="sn">Get in Touch</span></div>
+      <div class="contact-layout">
+        <div>
+          <div class="contact-info">
+            <h2>Get in Touch</h2>
+            <p>Questions about a license tier, custom scoping for a Blueprint, or IS integration support? Reach us directly — a professional will respond within one business day.</p>
+          </div>
+          <div class="cd-list">
+            <div class="cd"><div class="cd-icon"><svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></div><div><div class="cd-k">Email</div><div class="cd-v">licensing@islicensingcore.io</div></div></div>
+            <div class="cd"><div class="cd-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div><div><div class="cd-k">Response Time</div><div class="cd-v">Within 1 Business Day</div></div></div>
+            <div class="cd"><div class="cd-icon"><svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></div><div><div class="cd-k">Operation</div><div class="cd-v">Remote · Professional IS Services</div></div></div>
+            <div class="cd"><div class="cd-icon"><svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></div><div><div class="cd-k">Platform</div><div class="cd-v">IS Licensing Core v2.0</div></div></div>
+          </div>
+
+          <!-- QUICK ACTIONS -->
+          <div style="margin-top:28px;border:1px solid var(--border);background:var(--s1);padding:22px">
+            <div style="font-family:var(--mono);font-size:7.5px;letter-spacing:0.16em;text-transform:uppercase;color:var(--indigo);margin-bottom:16px">// Quick Actions</div>
+            <div style="display:flex;flex-direction:column;gap:8px">
+              <button style="font-family:var(--mono);font-size:8px;color:var(--text2);background:var(--s2);border:1px solid var(--border);padding:10px 14px;cursor:pointer;text-align:left;transition:border-color 0.2s;letter-spacing:0.08em" onmouseover="this.style.borderColor='var(--indigo)'" onmouseout="this.style.borderColor='var(--border)'" onclick="goPage('catalog')">→ Browse IS Catalog</button>
+              <button style="font-family:var(--mono);font-size:8px;color:var(--text2);background:var(--s2);border:1px solid var(--border);padding:10px 14px;cursor:pointer;text-align:left;transition:border-color 0.2s;letter-spacing:0.08em" onmouseover="this.style.borderColor='var(--indigo)'" onmouseout="this.style.borderColor='var(--border)'" onclick="openModal('BLUEPRINT')">→ Request a Systems Blueprint</button>
+              <button style="font-family:var(--mono);font-size:8px;color:var(--text2);background:var(--s2);border:1px solid var(--border);padding:10px 14px;cursor:pointer;text-align:left;transition:border-color 0.2s;letter-spacing:0.08em" onmouseover="this.style.borderColor='var(--indigo)'" onmouseout="this.style.borderColor='var(--border)'" onclick="goPage('faq')">→ Read the FAQ</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-wrap">
+          <div class="form-label-tag">// Send a Message</div>
+          <div class="form">
+            <div class="frow">
+              <div class="field"><label>First Name</label><input type="text" placeholder="Jane"></div>
+              <div class="field"><label>Last Name</label><input type="text" placeholder="Smith"></div>
+            </div>
+            <div class="field"><label>Organization</label><input type="text" placeholder="Your company or firm"></div>
+            <div class="field"><label>Email Address</label><input type="email" placeholder="you@organization.com"></div>
+            <div class="field"><label>Subject</label>
+              <select>
+                <option value="">Select a subject...</option>
+                <option>License Inquiry — Academic Strategy</option>
+                <option>License Inquiry — Front Desk API</option>
+                <option>License Inquiry — Systems Blueprint</option>
+                <option>IS Technical / Integration Support</option>
+                <option>Custom / Extended IS Licensing</option>
+                <option>Other</option>
+              </select>
+            </div>
+            <div class="field"><label>Message</label><textarea placeholder="Describe your IS inquiry..."></textarea></div>
+            <button class="form-btn" onclick="submitForm(this)">Send Message →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ========== FOOTER ========== -->
+<footer>
+  <div class="footer-top">
+    <div>
+      <div class="fb-logo"><div class="fb-icon"></div><span class="fb-name">IS <em>Licensing</em> Core</span></div>
+      <p class="fb-desc">Proprietary IS and Business assets, licensed by professionals. Enterprise-grade IS — not templates.</p>
+      <div class="fb-badge"><div class="sdot"></div><span>Systems Online</span></div>
+    </div>
+    <div class="fcol">
+      <h4>Platform</h4>
+      <ul>
+        <li><button onclick="goPage('home')">Home</button></li>
+        <li><button onclick="goPage('home');setTimeout(()=>document.getElementById('page-home').querySelector('.ph2').scrollIntoView({behavior:'smooth'}),100)">Why IS Core</button></li>
+        <li><button onclick="goPage('about')">About</button></li>
+        <li><button onclick="goPage('usecases')">Use Cases</button></li>
+      </ul>
+    </div>
+    <div class="fcol">
+      <h4>Licenses</h4>
+      <ul>
+        <li><button onclick="openModal('ARTICLE')">Academic Strategy — $29</button></li>
+        <li><button onclick="openModal('SAAS')">Front Desk API — $39/mo</button></li>
+        <li><button onclick="openModal('BLUEPRINT')">Systems Blueprint — $499</button></li>
+        <li><button onclick="goPage('catalog')">Compare Tiers</button></li>
+      </ul>
+    </div>
+    <div class="fcol">
+      <h4>Support</h4>
+      <ul>
+        <li><button onclick="goPage('faq')">FAQ</button></li>
+        <li><button onclick="goPage('contact')">Contact</button></li>
+        <li><a href="#">License Terms</a></li>
+        <li><a href="#">Privacy Policy</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bot">
+    <div class="footer-copy">IS Licensing Core © 2025 · All IS rights reserved · Authored by IS Professionals</div>
+    <div class="footer-legal"><a href="#">Terms</a><a href="#">Privacy</a><a href="#">Licensing</a></div>
+  </div>
+</footer>
+
+<!-- MODAL -->
+<div class="modal-bg" id="modal" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <button class="mx" onclick="closeModal()">✕ Close</button>
+    <div class="m-tag">// IS License Acquisition</div>
+    <div class="m-title" id="mtitle"></div>
+    <div class="m-price" id="mprice"></div>
+    <div class="m-hr"></div>
+    <div class="m-rows">
+      <div class="m-row"><span class="mr-k">Encryption</span><span class="mr-v">AES-256</span></div>
+      <div class="m-row"><span class="mr-k">License Scope</span><span class="mr-v">Single Entity, Non-Transferable</span></div>
+      <div class="m-row"><span class="mr-k">Delivery</span><span class="mr-v" id="mdeliv"></span></div>
+      <div class="m-row"><span class="mr-k">Authorship</span><span class="mr-v">IS &amp; Business Graduates</span></div>
+      <div class="m-row"><span class="mr-k">Availability</span><span class="mr-live">Available Now</span></div>
+    </div>
+    <button class="btn btn-fill" style="width:100%;padding:14px;font-size:8.5px" onclick="showToast()">Authorize &amp; Proceed to Payment</button>
+    <div class="m-note">Secure IS portal · Non-refundable once provisioned · AES-256 encrypted</div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <div class="toast-dot"></div>
+  <span class="toast-txt">Redirecting to secure IS payment portal...</span>
+</div>
+
+<script>
+// PAGE ROUTER
+const pages=['home','catalog','usecases','about','faq','contact'];
+function goPage(id){
+  pages.forEach(p=>{
+    document.getElementById('page-'+p).classList.remove('active');
+    document.getElementById('nl-'+p).classList.remove('active');
+  });
+  document.getElementById('page-'+id).classList.add('active');
+  document.getElementById('nl-'+id).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+// CHAT
+const chatWin=document.getElementById('chat-window');
+const chatInp=document.getElementById('chat-input');
+const chatSend=document.getElementById('chat-send');
+const replies=[
+  '> QUERY_LOG: Proprietary IS logic licensed on single-entity basis.\n> Visit the Catalog page to provision access.',
+  '> STATUS: Neural Desk API v4.0 — provisioning active.\n> 30-day IS license available. Renews on demand.',
+  '> INFO: All IS assets authored by Business Administration / IS graduates.\n> Not template content — original professional IS assets.',
+  '> NOTICE: AES-256 encryption enforced across all transmissions.\n> IS license delivery secured post-authorization.',
+  '> BLUEPRINT_INFO: Custom IS scoping begins within 48hr of authorization.\n> Includes 60-min consultation + full IS revision round.',
+  '> SYSTEM: IS Licensing Core v2.0 online.\n> 3 active IS tiers. All verified and ready to provision.'
+];
+let ri=0;
+function addMsg(html,c){const d=document.createElement('div');d.className='msg '+c;d.innerHTML=html.replace(/\n/g,'<br>');chatWin.appendChild(d);chatWin.scrollTop=chatWin.scrollHeight}
+function sendChat(){const v=chatInp.value.trim();if(!v)return;addMsg('&gt; '+v.replace(/</g,'&lt;'),'usr');chatInp.value='';setTimeout(()=>{addMsg(replies[ri%replies.length],'bot');ri++},600)}
+chatSend.addEventListener('click',sendChat);
+chatInp.addEventListener('keydown',e=>{if(e.key==='Enter')sendChat()});
+
+// MODAL
+const plans={
+  ARTICLE:{title:'Academic Strategy License',price:'$29.00',deliv:'Instant PDF Delivery'},
+  SAAS:{title:'Neural Logic Front Desk API',price:'$39.00 / mo',deliv:'Same-Day API Provisioning'},
+  BLUEPRINT:{title:'Systems Blueprint Design',price:'$499.00',deliv:'7–14 Business Days'}
+};
+function openModal(id){
+  const p=plans[id];
+  document.getElementById('mtitle').textContent=p.title;
+  document.getElementById('mprice').textContent=p.price;
+  document.getElementById('mdeliv').textContent=p.deliv;
+  document.getElementById('modal').classList.add('open');
+}
+function closeModal(){document.getElementById('modal').classList.remove('open')}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal()});
+
+function showToast(){
+  closeModal();
+  const t=document.getElementById('toast');
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),3200);
+}
+
+function toggleFaq(el){
+  const item=el.parentElement;
+  const was=item.classList.contains('open');
+  document.querySelectorAll('.faq-item').forEach(i=>i.classList.remove('open'));
+  if(!was)item.classList.add('open');
+}
+
+function submitForm(btn){
+  btn.textContent='Message Sent ✓';
+  btn.style.background='rgba(16,185,129,0.2)';
+  btn.style.color='var(--green)';
+  btn.disabled=true;
+  setTimeout(()=>{btn.textContent='Send Message →';btn.style.background='';btn.style.color='';btn.disabled=false},3000);
+}
+</script>
 </body>
 </html>
